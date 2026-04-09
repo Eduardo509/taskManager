@@ -1,66 +1,46 @@
 package com.eduardo.taskmanager.controller;
 
 import com.eduardo.taskmanager.model.Task;
+import com.eduardo.taskmanager.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class TaskController {
-    private ArrayList<Task> tasks = new ArrayList<>();
+    private final TaskService taskService;
 
+    public TaskController(TaskService taskservice){
+        this.taskService = taskservice;
+    }
     @PostMapping("/tasks")
     public Task addTask(@RequestBody Task task) {
-        tasks.add(task);
-        return task;
+        return taskService.saveTask(task);
     }
 
     @GetMapping("/tasks")
-    public ArrayList<Task> showTasks(){
-        return tasks;
+    public List<Task> showTasks(){
+        return taskService.getAllTasks();
     }
 
     @GetMapping("/tasks/{id}")
     public Task getTaskById(@PathVariable int  id){
-        for (Task t: tasks){
-            if (t.getId()==id){
-                return t;
-            }
-        }
-        return null;
+        return taskService.getTaskById(id);
     }
     @GetMapping("/tasks/Title/{title}")
-    public Task getTaskByTitle(@PathVariable String title){
-        for (int i = 0; i < tasks.size(); i++) {
-            Task t = tasks.get(i);
-            if (t.getTitle().equals(title)){
-                return t;
-            }
-        }
-        return null;
+    public Task getTaskByTitle(@PathVariable String title) {
+        return taskService.getTaskByTitle(title);
     }
 
     @PutMapping("/tasks/{id}")
     public Task updateTaskById (@PathVariable int id, @RequestBody Task task){
-        Task t = getTaskById(id);
-        if (t != null) {
-            t.setTitle(task.getTitle());
-            t.setDescription(task.getDescription());
-            t.setCompleted(task.isCompleted());
-        }
-        return t;
+        return taskService.updateTask(id, task);
     }
 
     @DeleteMapping("/tasks/{id}")
     public Task deleteTaskById(@PathVariable int id){
-        for (int i = 0; i < tasks.size(); i++) {
-            Task t = tasks.get(i);
-            if (t.getId() == id){
-                tasks.remove(i);
-                return t;
-            }
-        }
-        return null;
+        return taskService.deleteTask(id);
     }
 
 }
